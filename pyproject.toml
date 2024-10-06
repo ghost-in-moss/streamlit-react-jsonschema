@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "streamlit_react_jsonschema"
-version = "0.1.1"
+version = "0.1.2"
 description = "streamlit component for GhostOS, render form from JSONSchema by react-jsonschema-component"
 authors = ["ZhuMing <thirdgerb@gmail.com>"]
 license = "MIT"

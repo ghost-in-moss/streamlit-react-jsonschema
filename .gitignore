@@ -8,7 +8,6 @@ __pycache__/
 poetry.lock
 
 # Distribution / packaging
-build/
 dist/
 eggs/
 .eggs/
