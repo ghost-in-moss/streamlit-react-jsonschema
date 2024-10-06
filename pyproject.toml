@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "streamlit_react_jsonschema"
+version = "0.1.0"
+description = "streamlit react jsonschema component for GhostOS"
+authors = ["ZhuMing <thirdgerb@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+pydantic = "^2"
+streamlit = "^1.39.0"
+
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
