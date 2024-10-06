@@ -10,7 +10,7 @@ This library is experimental for [GhostOS](https://github.com/ghost-in-moss/Ghos
 install `streamlit-react-jsonschema` with pip
 
 ```bash
-pip install streamlit-react-jsonschema
+pip install streamlit_react_jsonschema
 ```
 
 ## Example
