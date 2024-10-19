@@ -30,6 +30,7 @@ def pydantic_form(
         *,
         key: str = None,
         default: Dict = None,
+        disabled: bool = False,
 ) -> Tuple[Optional[BaseModel], bool]:
     """
     render a react-json-schema form by json schema from pydantic model
@@ -38,14 +39,13 @@ def pydantic_form(
     :param model: the pydantic model type
     :param key: the elementId of the Form
     :param default: default value of the model.
+    :param disabled: disable the ui
     :return: (model instance: BaseModel, submitted: bool)
     model instance is None unless the form is submitted, get the pydantic model instance.
     this function use pydantic model to validate the result that form returns.
     """
-    if key is None:
-        key = _pydantic_model_key(model)
     schema = model.model_json_schema()
-    result, submitted = jsonschema_form(key, schema, default=default)
+    result, submitted = jsonschema_form(schema, key=key, default=default, disabled=disabled)
     if result is not None:
         return model(**result), submitted is True
     return result, submitted is True
@@ -60,6 +60,7 @@ def pydantic_instance_form(
         *,
         key: str = None,
         deep: bool = True,
+        disabled: bool = False,
 ) -> Tuple[Optional[BaseModel], bool]:
     """
     render a react-json-schema form by json schema from pydantic instance
@@ -67,31 +68,31 @@ def pydantic_instance_form(
     :param instance: pydantic model instance
     :param key: the elementId of the Form
     :param deep: if deep is True, return instance's deep copy by updated values
+    :param disabled: disable the ui
     :return: (instance, submitted)
     instance is None unless the form is submitted, get the pydantic model instance.
     """
     data = instance.model_dump(exclude_defaults=False)
     schema = instance.model_json_schema()
-    model = type(instance)
-    if key is None:
-        key = _pydantic_model_key(model)
-    result, submitted = jsonschema_form(key, schema, default=data)
+    result, submitted = jsonschema_form(schema, key=key, default=data, disabled=disabled)
     if result is None:
         return None, submitted is True
     return instance.model_copy(update=result, deep=deep), submitted is True
 
 
 def jsonschema_form(
-        key: str,
         schema: Dict,
         *,
+        key: str = None,
         default: Dict = None,
+        disabled: bool = False,
 ) -> Tuple[Optional[Dict], bool]:
     """
     render a react-json-schema form by raw json schema
     :param key: the elementId of the Form
     :param schema: the json schema
     :param default: default value of the schema
+    :param disabled: disable the ui
     :return: None unless the form is submitted, get the dict value of the formData
     """
     if default is None:
@@ -101,7 +102,10 @@ def jsonschema_form(
             key=key,
             schema=schema,
             formData=default,
+            disabled=disabled,
+            submitted=False,
         )
     if isinstance(component_value, dict):
-        return component_value.get("formData", {}), component_value.get("submitted", False)
+        val, submitted = component_value.get("formData", {}), component_value.get("submitted", False)
+        return val, submitted
     return None, False
