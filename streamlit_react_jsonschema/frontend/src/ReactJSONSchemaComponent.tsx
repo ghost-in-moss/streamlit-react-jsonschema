@@ -17,6 +17,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 interface State {
     formData: object
     submitted: boolean
+    disabled: boolean
 }
 
 
@@ -28,7 +29,8 @@ class ReactJSONSchemaComponent extends StreamlitComponentBase<State> {
     // fromData implements State interface?
     // ts can define interface with properties only, cool!
     formData = {}
-    submitted = false
+
+    submitted: boolean = false
 
     // prepare none state container for form data
     tempData: null | object = null
@@ -41,9 +43,11 @@ class ReactJSONSchemaComponent extends StreamlitComponentBase<State> {
         // Arguments that are passed to the plugin in Python are accessible
         // via `this.props.args`. Here, we access the "name" arg.
         const key = this.props.args["key"]
+        const disabled = this.props.args["disabled"]
         // get json schema
         const schema: RJSFSchema = this.props.args["schema"]
         this.formData = this.props.args["default"] ?? {}
+        this.submitted = this.props.args["submitted"] ?? false
         if (this.tempData === null) {
             this.tempData = this.formData
         }
@@ -73,6 +77,7 @@ class ReactJSONSchemaComponent extends StreamlitComponentBase<State> {
                 validator={validator}
                 onChange={this._onChange}
                 onSubmit={this._onSubmit}
+                disabled={disabled}
             />
         </ThemeProvider>
 
@@ -82,7 +87,6 @@ class ReactJSONSchemaComponent extends StreamlitComponentBase<State> {
     }
 
     private _onChange = (event: IChangeEvent) => {
-        console.log(event.formData)
         // detect height on change.
         // json schema form may change height when add item to array or dict
         this.updateIframeHeight()
@@ -90,9 +94,8 @@ class ReactJSONSchemaComponent extends StreamlitComponentBase<State> {
     }
 
     private _onSubmit = () => {
-        console.log("set form data", this.tempData)
-        this.setState({formData: this.tempData ?? {}})
         Streamlit.setComponentValue({formData: this.tempData, submitted: true})
+        this.setState({formData: this.tempData ?? {}, submitted: false})
     }
 
     componentDidMount() {

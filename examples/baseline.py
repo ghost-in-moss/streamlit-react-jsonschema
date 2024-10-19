@@ -27,7 +27,12 @@ with st.expander("source code of the example pydantic class", expanded=True):
     codes = inspect.getsource(SomeClass)
     st.code(codes)
 
-value, submitted = srj.pydantic_form(model=SomeClass)
+count = 0
+if "count" not in st.session_state:
+    st.session_state["count"] = count
+else:
+    count = st.session_state["count"]
+value, submitted = srj.pydantic_form(model=SomeClass, disabled=count > 0)
 
 st.subheader("result:")
 st.write(f"submitted: {submitted}")
@@ -36,3 +41,7 @@ st.write(value)
 if isinstance(value, BaseModel):
     st.write("model dump value")
     st.write(value.model_dump(exclude_defaults=False))
+
+if rerun := st.button("rerun"):
+    st.session_state["count"] = count + 1
+    st.write(f"rerun: {count}")
