@@ -16,3 +16,11 @@ st.subheader("result:")
 st.write(f"submitted: {submitted}")
 st.write(f"type of the result: {type(value)}")
 st.write(value)
+
+
+value, submitted = srj.pydantic_form(model=Student, disabled=True, data={"name": "foo"}, key="abc")
+
+st.subheader("result:")
+st.write(f"submitted: {submitted}")
+st.write(f"type of the result: {type(value)}")
+st.write(value)

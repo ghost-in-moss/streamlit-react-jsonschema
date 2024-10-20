@@ -55,5 +55,6 @@ if isinstance(value, BaseModel):
     st.write(value.model_dump(exclude_defaults=False))
 
 if rerun := st.button("rerun"):
-    st.session_state["count"] = count + 1
+    count = count + 1
+    st.session_state["count"] = count
     st.write(f"rerun: {count}")

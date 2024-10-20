@@ -16,6 +16,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 // and manage state change events.
 interface State {
     formData: object
+    submitted: boolean
 }
 
 
@@ -27,27 +28,24 @@ class ReactJSONSchemaComponent extends StreamlitComponentBase<State> {
     // fromData implements State interface?
     // ts can define interface with properties only, cool!
     formData = {}
+    submitted: boolean = false
 
-    // prepare none state container for form data
-    tempData: null | object = null
     // detect the form height change
     frameHeight = 0
 
     rjsRef: React.RefObject<any> = React.createRef()
+    disabled: boolean = false
+    readonly: boolean = false
 
     public render = (): ReactNode => {
         // Arguments that are passed to the plugin in Python are accessible
         // via `this.props.args`. Here, we access the "name" arg.
         const key = this.props.args["key"]
-        const disabled = this.props.args["disabled"]
-        const readonly = this.props.args["readonly"]
+        const disabled = this.props.args["disabled"] ?? false
+        const readonly = this.props.args["readonly"] ?? false
         // get json schema
         const schema: RJSFSchema = this.props.args["schema"]
         this.formData = this.props.args["default"] ?? {}
-        if (this.tempData === null) {
-            this.tempData = this.formData
-        }
-
         // Streamlit sends us a theme object via props that we can use to ensure
         // that our component has visuals that match the active theme in a
         // streamlit app.
@@ -69,13 +67,18 @@ class ReactJSONSchemaComponent extends StreamlitComponentBase<State> {
             <Form
                 id={key}
                 ref={this.rjsRef}
-                formData={this.tempData}
+                formData={this.formData}
                 schema={schema}
                 validator={validator}
                 onChange={this._onChange}
                 onSubmit={this._onSubmit}
                 disabled={disabled}
                 readonly={readonly}
+                uiSchema={{
+                    "ui:submitButtonOptions": {
+                        "norender": readonly || disabled,
+                    }
+                }}
             />
         </ThemeProvider>
 
@@ -88,11 +91,18 @@ class ReactJSONSchemaComponent extends StreamlitComponentBase<State> {
         // detect height on change.
         // json schema form may change height when add item to array or dict
         this.updateIframeHeight()
-        this.tempData = event.formData
+        this.formData = event.formData
+        this.submitted = false
     }
 
     private _onSubmit = () => {
-        Streamlit.setComponentValue({formData: this.tempData, submitted: true})
+        if (this.disabled || this.readonly) {
+            return
+        }
+        Streamlit.setComponentValue({
+            formData: this.formData,
+            submitted: true,
+        })
     }
 
     componentDidMount() {

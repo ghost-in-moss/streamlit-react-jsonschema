@@ -47,8 +47,6 @@ def pydantic_form(
     this function use pydantic model to validate the result that form returns.
     """
     schema = model.model_json_schema()
-    if key is None:
-        key = model.__module__ + ":" + model.__name__
     result, submitted = jsonschema_form(
         key,
         schema,
@@ -56,9 +54,9 @@ def pydantic_form(
         disabled=disabled,
         readonly=readonly,
     )
-    if result is not None:
-        return model(**result), submitted is True
-    return result, submitted is True
+    if submitted:
+        return model(**result), True
+    return None, False
 
 
 def _pydantic_model_key(model: Type[BaseModel]) -> str:
@@ -86,8 +84,6 @@ def pydantic_instance_form(
     """
     data = instance.model_dump(exclude_defaults=False)
     model = type(instance)
-    if key is None:
-        key = model.__module__ + ":" + model.__name__
     schema = instance.model_json_schema()
     result, submitted = jsonschema_form(key, schema, data=data, disabled=disabled, readonly=readonly)
     if result is None:
@@ -118,12 +114,12 @@ def jsonschema_form(
         component_value = _component_func(
             key=key,
             schema=schema,
-            formData=data,
+            default=data,
             disabled=disabled,
             submitted=False,
             readonly=readonly,
         )
     if isinstance(component_value, dict):
-        val, submitted = component_value.get("formData", data), component_value.get("submitted", False)
+        val, submitted = component_value.get("formData", {}), component_value.get("submitted", False)
         return val, submitted
     return None, False
