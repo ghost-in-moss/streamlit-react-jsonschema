@@ -16,8 +16,6 @@ import CssBaseline from '@mui/material/CssBaseline';
 // and manage state change events.
 interface State {
     formData: object
-    submitted: boolean
-    disabled: boolean
 }
 
 
@@ -29,8 +27,6 @@ class ReactJSONSchemaComponent extends StreamlitComponentBase<State> {
     // fromData implements State interface?
     // ts can define interface with properties only, cool!
     formData = {}
-
-    submitted: boolean = false
 
     // prepare none state container for form data
     tempData: null | object = null
@@ -44,10 +40,10 @@ class ReactJSONSchemaComponent extends StreamlitComponentBase<State> {
         // via `this.props.args`. Here, we access the "name" arg.
         const key = this.props.args["key"]
         const disabled = this.props.args["disabled"]
+        const readonly = this.props.args["readonly"]
         // get json schema
         const schema: RJSFSchema = this.props.args["schema"]
         this.formData = this.props.args["default"] ?? {}
-        this.submitted = this.props.args["submitted"] ?? false
         if (this.tempData === null) {
             this.tempData = this.formData
         }
@@ -66,6 +62,7 @@ class ReactJSONSchemaComponent extends StreamlitComponentBase<State> {
             },
         });
 
+
         const Form = withTheme(Theme)
         const rendered = <ThemeProvider theme={muiTheme}>
             <CssBaseline/>
@@ -78,6 +75,7 @@ class ReactJSONSchemaComponent extends StreamlitComponentBase<State> {
                 onChange={this._onChange}
                 onSubmit={this._onSubmit}
                 disabled={disabled}
+                readonly={readonly}
             />
         </ThemeProvider>
 
@@ -95,7 +93,6 @@ class ReactJSONSchemaComponent extends StreamlitComponentBase<State> {
 
     private _onSubmit = () => {
         Streamlit.setComponentValue({formData: this.tempData, submitted: true})
-        this.setState({formData: this.tempData ?? {}, submitted: false})
     }
 
     componentDidMount() {
